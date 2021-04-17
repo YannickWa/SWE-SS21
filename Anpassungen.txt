@@ -23,7 +23,7 @@ interface BuchData <<entity>> {
 
 Hier werden all unsere Dokumentationsschritte veröffentlicht.
 ----------------------------------------------------------------------------------------------------
-auto    ->  auto
+buch    ->  auto
 --------------------------------------------------------------------------------------
 (filme ->  autos)     //wurde auch geändert oder?
 ----------------------------------------------------------------------------------------------------
@@ -32,7 +32,7 @@ autoren ->  produtkionswerke
 autor   ->  produktionswerk
 druckausgabe -> ?? 
 kindle  ->  ??
-prodnr    ->  seriennummer
+prodnr  ->  seriennummer
 titel   ->  model
 preis   ->  preis
 --------------------------------------------------------------------------------------
