@@ -74,13 +74,13 @@ export const typeDefs = gql`
         schlagwoerter: [String]
     }
 
-    "Funktionen, um Buecher zu empfangen"
+    "Funktionen, um Autos zu empfangen"
     type Query {
-        buecher(titel: String): [Buch]
-        buch(id: ID!): Buch
+        autos(titel: String): [Buch]
+        auto(id: ID!): Buch
     }
 
-    "Funktionen, um Buecher anzulegen, zu aktualisieren oder zu loeschen"
+    "Funktionen, um Autos anzulegen, zu aktualisieren oder zu loeschen"
     type Mutation {
         createBuch(
             titel: String!

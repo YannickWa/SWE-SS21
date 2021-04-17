@@ -17,7 +17,7 @@
 // N e t z w e r k   -  V e r b i n d u n g   n o t w e n d i g
 //
 
-### Suche alle Buecher
+### Suche alle Autos
 GET {{restUrl}}
 
 ### Suche mit vorhandener Buch-ID
@@ -61,7 +61,7 @@ GET {{restUrl}}?art=KINDLE
 ### Suche mit gueltigem Rating
 GET {{restUrl}}?rating=1
 
-### Suche lieferbare Buecher
+### Suche lieferbare Autos
 GET {{restUrl}}?lieferbar=true
 
 ### Optionen zu Buch-ID

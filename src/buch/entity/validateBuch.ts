@@ -26,7 +26,7 @@
 // https://ajv.js.org/guide/schema-language.html#draft-2019-09-and-draft-2012-12
 // https://github.com/ajv-validator/ajv/blob/master/docs/validation.md
 import Ajv2020 from 'ajv/dist/2020';
-import type { Buch } from './buch';
+import type { Buch } from './auto';
 import { jsonSchema } from './jsonSchema';
 import { logger } from '../../shared';
 
@@ -49,9 +49,9 @@ export type ValidationErrorMsg = Record<string, string | undefined>;
  * Funktion zur Validierung, wenn neue Bücher angelegt oder vorhandene Bücher
  * aktualisiert bzw. überschrieben werden sollen.
  */
-export const validateBuch = (buch: Buch) => {
+export const validateBuch = (auto: Buch) => {
     const validate = ajv.compile<Buch>(jsonSchema);
-    validate(buch);
+    validate(auto);
     // nullish coalescing
     const errors = validate.errors ?? [];
     logger.debug('validateBuch: errors=%o', errors);

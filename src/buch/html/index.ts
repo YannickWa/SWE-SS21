@@ -32,5 +32,5 @@ export const index = (_: Request, res: Response) => {
     res.render('index', { title: 'Beispiel' });
 };
 
-export * from './neues-buch';
+export * from './neues-auto';
 export * from './suche';

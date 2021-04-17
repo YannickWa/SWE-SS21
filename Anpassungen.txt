@@ -23,7 +23,7 @@ interface BuchData <<entity>> {
 
 Hier werden all unsere Dokumentationsschritte veröffentlicht.
 ----------------------------------------------------------------------------------------------------
-buch    ->  auto
+auto    ->  auto
 --------------------------------------------------------------------------------------
 (filme ->  autos)     //wurde auch geändert oder?
 ----------------------------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ neues-film -> neuer-film
 Neues Film -> Neuer Film
 /html/suche.ts
 BuchService -> FilmService
-buchService -> filmService
+autoService -> filmService
 /rest/film-file.request-handler.ts
 BuchFileService -> FilmFileService
 BuchFileServiceError -> FilmFileServiceError
@@ -57,8 +57,8 @@ BuchData -> FilmData
 BuchInvalid -> FilmInvalid
 BuchServiceError -> FilmServiceError
 BuchRequestHandler -> FilmRequestHandler
-buchData -> filmData
-buchSaved -> filmSaved
+autoData -> filmData
+autoSaved -> filmSaved
 ----------------------------------------------------------------------------------------------------
 FOO_PRODUKTION -> Volkswagen
 NO_PRODUKTION -> Ford

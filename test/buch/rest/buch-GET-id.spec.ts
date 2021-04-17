@@ -70,17 +70,17 @@ const idVorhandenETag = [
 // T e s t s
 // -----------------------------------------------------------------------------
 let server: Server;
-const path = PATHS.buecher;
-let buecherUri: string;
+const path = PATHS.autos;
+let autosUri: string;
 
 // Test-Suite
-describe('GET /api/buecher/:id', () => {
+describe('GET /api/autos/:id', () => {
     // Testserver starten und dabei mit der DB verbinden
     beforeAll(async () => {
         server = await createTestserver();
 
         const address = server.address() as AddressInfo;
-        buecherUri = `https://${nodeConfig.host}:${address.port}${path}`;
+        autosUri = `https://${nodeConfig.host}:${address.port}${path}`;
     });
 
     afterAll(() => {
@@ -89,7 +89,7 @@ describe('GET /api/buecher/:id', () => {
 
     each(idVorhanden).test('Buch zu vorhandener ID %s', async (id) => {
         // given
-        const uri = `${buecherUri}/${id}`;
+        const uri = `${autosUri}/${id}`;
 
         // when
         const response = await fetch(uri, { agent });
@@ -107,7 +107,7 @@ describe('GET /api/buecher/:id', () => {
         'Kein Buch zu nicht-vorhandener ID %s',
         async (id) => {
             // given
-            const uri = `${buecherUri}/${id}`;
+            const uri = `${autosUri}/${id}`;
 
             // when
             const response = await fetch(uri, { agent });
@@ -123,7 +123,7 @@ describe('GET /api/buecher/:id', () => {
         'Buch zu vorhandener ID %s mit ETag %s',
         async (id, etag) => {
             // given
-            const uri = `${buecherUri}/${id}`;
+            const uri = `${autosUri}/${id}`;
             const headers = new Headers({ 'If-None-Match': etag });
             const request = new Request(uri, { headers, agent });
 

@@ -4,7 +4,7 @@ export const MAX_RATING = 5;
 
 export const jsonSchema: GenericJsonSchema = {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
-    $id: 'http://acme.com/buch.json#',
+    $id: 'http://acme.com/auto.json#',
     title: 'Buch',
     description: 'Eigenschaften eines Buches: Typen und Constraints',
     type: 'object',

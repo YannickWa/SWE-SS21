@@ -25,7 +25,7 @@
 import { BuchNotExists, FileNotFound, MultipleFiles } from './errors';
 import { closeMongoDBClient, connectMongoDB, logger, save } from '../../shared';
 import { BuchModel } from '../entity';
-import { BuchService } from './buch.service';
+import { BuchService } from './auto.service';
 import { GridFSBucket } from 'mongodb';
 import type { ObjectId } from 'mongodb';
 import { Readable } from 'stream';
@@ -55,8 +55,8 @@ export class BuchFileService {
 
         // Gibt es ein Buch zur angegebenen ID?
         // eslint-disable-next-line line-comment-position, spaced-comment
-        const buch = await this.service.findById(id); //NOSONAR
-        if (buch === undefined) {
+        const auto = await this.service.findById(id); //NOSONAR
+        if (auto === undefined) {
             return false;
         }
 
@@ -134,9 +134,9 @@ export class BuchFileService {
 
         // Gibt es ein Buch mit dem gegebenen "filename" als ID?
         // eslint-disable-next-line line-comment-position, spaced-comment
-        const buch = await BuchModel.findById(filename); //NOSONAR
+        const auto = await BuchModel.findById(filename); //NOSONAR
         // eslint-disable-next-line no-null/no-null
-        if (buch === null) {
+        if (auto === null) {
             const result = new BuchNotExists(filename);
             logger.debug(
                 'BuchFileService.checkFilename(): BuchNotExists=%o',
@@ -145,7 +145,7 @@ export class BuchFileService {
             return result;
         }
 
-        logger.debug('BuchFileService.checkFilename(): buch=%o', buch);
+        logger.debug('BuchFileService.checkFilename(): auto=%o', auto);
 
         return undefined;
     }

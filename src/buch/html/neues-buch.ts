@@ -28,5 +28,5 @@ import type { Request, Response } from 'express';
  * @param res Response-Objekt von Express
  */
 export const neuesBuch = (_: Request, res: Response) => {
-    res.render('neues-buch', { title: 'Neues Buch' });
+    res.render('neues-auto', { title: 'Neues Buch' });
 };

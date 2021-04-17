@@ -19,7 +19,7 @@ import { HttpStatus, nodeConfig } from '../../../src/shared';
 import { agent, createTestserver } from '../../testserver';
 import { afterAll, beforeAll, describe, test } from '@jest/globals';
 import type { AddressInfo } from 'net';
-import type { Buch } from '../../../src/buch/entity';
+import type { Buch } from '../../../src/auto/entity';
 import { PATHS } from '../../../src/app';
 import type { Server } from 'http';
 import chai from 'chai';
@@ -48,27 +48,27 @@ const schlagwoerterNichtVorhanden = ['csharp', 'php'];
 // T e s t s
 // -----------------------------------------------------------------------------
 let server: Server;
-const path = PATHS.buecher;
-let buecherUri: string;
+const path = PATHS.autos;
+let autosUri: string;
 
 // Test-Suite
-describe('GET /api/buecher', () => {
+describe('GET /api/autos', () => {
     beforeAll(async () => {
         server = await createTestserver();
 
         const address = server.address() as AddressInfo;
-        buecherUri = `https://${nodeConfig.host}:${address.port}${path}`;
+        autosUri = `https://${nodeConfig.host}:${address.port}${path}`;
     });
 
     afterAll(() => {
         server.close();
     });
 
-    test('Alle Buecher', async () => {
+    test('Alle Autos', async () => {
         // given
 
         // when
-        const response = await fetch(buecherUri, { agent });
+        const response = await fetch(autosUri, { agent });
 
         // then
         const { status, headers } = response;
@@ -76,19 +76,19 @@ describe('GET /api/buecher', () => {
         expect(headers.get('Content-Type')).to.match(/json/iu);
         // https://jestjs.io/docs/en/expect
         // JSON-Array mit mind. 1 JSON-Objekt
-        const buecher: Array<any> = await response.json();
-        expect(buecher).not.to.be.empty;
-        buecher.forEach((buch) => {
-            const selfLink = buch._links.self.href;
+        const autos: Array<any> = await response.json();
+        expect(autos).not.to.be.empty;
+        autos.forEach((auto) => {
+            const selfLink = auto._links.self.href;
             expect(selfLink).to.have.string(path);
         });
     });
 
     each(titelVorhanden).test(
-        'Buecher mit einem Titel, der "%s" enthaelt',
+        'Autos mit einem Titel, der "%s" enthaelt',
         async (teilTitel) => {
             // given
-            const uri = `${buecherUri}?titel=${teilTitel}`;
+            const uri = `${autosUri}?titel=${teilTitel}`;
 
             // when
             const response = await fetch(uri, { agent });
@@ -102,17 +102,17 @@ describe('GET /api/buecher', () => {
             expect(body).not.to.be.empty;
 
             // Jedes Buch hat einen Titel mit dem Teilstring 'a'
-            body.map((buch: Buch) => buch.titel).forEach((titel: string) =>
+            body.map((auto: Buch) => auto.titel).forEach((titel: string) =>
                 expect(titel.toLowerCase()).to.have.string(teilTitel),
             );
         },
     );
 
     each(titelNichtVorhanden).test(
-        'Keine Buecher mit einem Titel, der "%s" nicht enthaelt',
+        'Keine Autos mit einem Titel, der "%s" nicht enthaelt',
         async (teilTitel) => {
             // given
-            const uri = `${buecherUri}?titel=${teilTitel}`;
+            const uri = `${autosUri}?titel=${teilTitel}`;
 
             // when
             const response = await fetch(uri, { agent });
@@ -128,7 +128,7 @@ describe('GET /api/buecher', () => {
         'Mind. 1 Buch mit dem Schlagwort "%s"',
         async (schlagwort) => {
             // given
-            const uri = `${buecherUri}?${schlagwort}=true`;
+            const uri = `${autosUri}?${schlagwort}=true`;
 
             // when
             const response = await fetch(uri, { agent });
@@ -143,7 +143,7 @@ describe('GET /api/buecher', () => {
 
             // Jedes Buch hat im Array der Schlagwoerter "javascript"
             body.map(
-                (buch: Buch) => buch.schlagwoerter,
+                (auto: Buch) => auto.schlagwoerter,
             ).forEach((s: Array<string>) =>
                 expect(s).to.include(schlagwort.toUpperCase()),
             );
@@ -151,10 +151,10 @@ describe('GET /api/buecher', () => {
     );
 
     each(schlagwoerterNichtVorhanden).test(
-        'Keine Buecher mit dem Schlagwort "%s"',
+        'Keine Autos mit dem Schlagwort "%s"',
         async (schlagwort) => {
             // given
-            const uri = `${buecherUri}?${schlagwort}=true`;
+            const uri = `${autosUri}?${schlagwort}=true`;
 
             // when
             const response = await fetch(uri, { agent });

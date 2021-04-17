@@ -21,10 +21,10 @@
  */
 
 import type { Request, Response } from 'express';
-import { BuchService } from '../service/buch.service';
+import { BuchService } from '../service/auto.service';
 import { logger } from './../../shared/logger';
 
-const buchService = new BuchService();
+const autoService = new BuchService();
 
 /**
  * Asynchrone Suchfunktion für EJS, um alle Bücher zu suchen.
@@ -34,6 +34,6 @@ const buchService = new BuchService();
  */
 export const suche = async (req: Request, res: Response) => {
     logger.error('suche(): %s', req.url);
-    const buecher = await buchService.find();
-    res.render('suche', { title: 'Suche', buecher });
+    const autos = await autoService.find();
+    res.render('suche', { title: 'Suche', autos });
 };

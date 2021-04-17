@@ -34,7 +34,7 @@ import { BuchService, BuchServiceError } from '../service';
 import type { Buch } from './../entity';
 import { logger } from '../../shared';
 
-const buchService = new BuchService();
+const autoService = new BuchService();
 
 // https://www.apollographql.com/docs/apollo-server/data/resolvers
 // Zugriff auf Header-Daten, z.B. Token
@@ -43,25 +43,25 @@ const buchService = new BuchService();
 
 // Resultat mit id (statt _id) und version (statt __v)
 // __ ist bei GraphQL fuer interne Zwecke reserviert
-const withIdAndVersion = (buch: Buch) => {
-    const result: any = buch;
-    result.id = buch._id;
-    result.version = buch.__v;
-    return buch;
+const withIdAndVersion = (auto: Buch) => {
+    const result: any = auto;
+    result.id = auto._id;
+    result.version = auto.__v;
+    return auto;
 };
 
 const findBuchById = async (id: string) => {
-    const buch = await buchService.findById(id);
-    if (buch === undefined) {
+    const auto = await autoService.findById(id);
+    if (auto === undefined) {
         return;
     }
-    return withIdAndVersion(buch);
+    return withIdAndVersion(auto);
 };
 
-const findBuecher = async (titel: string | undefined) => {
+const findAutos = async (titel: string | undefined) => {
     const suchkriterium = titel === undefined ? {} : { titel };
-    const buecher = await buchService.find(suchkriterium);
-    return buecher.map((buch: Buch) => withIdAndVersion(buch));
+    const autos = await autoService.find(suchkriterium);
+    return autos.map((auto: Buch) => withIdAndVersion(auto));
 };
 
 interface TitelCriteria {
@@ -72,8 +72,8 @@ interface IdCriteria {
     id: string;
 }
 
-const createBuch = async (buch: Buch) => {
-    const result = await buchService.create(buch);
+const createBuch = async (auto: Buch) => {
+    const result = await autoService.create(auto);
     logger.debug('resolvers createBuch(): result=%o', result);
     if (result instanceof BuchServiceError) {
         return;
@@ -120,20 +120,20 @@ const logUpdateResult = (
     }
 };
 
-const updateBuch = async (buch: Buch) => {
+const updateBuch = async (auto: Buch) => {
     logger.debug(
         'resolvers updateBuch(): zu aktualisieren = %s',
-        JSON.stringify(buch),
+        JSON.stringify(auto),
     );
     // nullish coalescing
-    const version = buch.__v ?? 0;
-    const result = await buchService.update(buch, version.toString());
+    const version = auto.__v ?? 0;
+    const result = await autoService.update(auto, version.toString());
     logUpdateResult(result);
     return result;
 };
 
 const deleteBuch = async (id: string) => {
-    const result = await buchService.delete(id);
+    const result = await autoService.delete(id);
     logger.debug('resolvers deleteBuch(): result = %s', result);
     return result;
 };
@@ -146,7 +146,7 @@ const query = {
      * @param __namedParameters JSON-Objekt mit `titel` als Suchkriterium
      * @returns Promise mit einem JSON-Array der gefundenen Bücher
      */
-    buecher: (_: unknown, { titel }: TitelCriteria) => findBuecher(titel),
+    autos: (_: unknown, { titel }: TitelCriteria) => findAutos(titel),
 
     /**
      * Buch suchen
@@ -154,22 +154,22 @@ const query = {
      * @param __namedParameters JSON-Objekt mit `id` als Suchkriterium
      * @returns Promise mit dem gefundenen {@linkcode Buch} oder `undefined`
      */
-    buch: (_: unknown, { id }: IdCriteria) => findBuchById(id),
+    auto: (_: unknown, { id }: IdCriteria) => findBuchById(id),
 };
 
 const mutation = {
     /**
      * Neues Buch anlegen
      * @param _ nicht benutzt
-     * @param buch JSON-Objekt mit dem neuen {@linkcode Buch}
+     * @param auto JSON-Objekt mit dem neuen {@linkcode Buch}
      * @returns Promise mit der generierten ID
      */
-    createBuch: (_: unknown, buch: Buch) => createBuch(buch),
+    createBuch: (_: unknown, auto: Buch) => createBuch(auto),
 
     /**
      * Vorhandenes {@linkcode Buch} aktualisieren
      * @param _ nicht benutzt
-     * @param buch JSON-Objekt mit dem zu aktualisierenden Buch
+     * @param auto JSON-Objekt mit dem zu aktualisierenden Buch
      * @returns Das aktualisierte Buch als {@linkcode BuchData} in einem Promise,
      * falls kein Fehler aufgetreten ist. Ansonsten ein Promise mit einem Fehler
      * durch:
@@ -179,7 +179,7 @@ const mutation = {
      * - {@linkcode VersionInvalid}
      * - {@linkcode VersionOutdated}
      */
-    updateBuch: (_: unknown, buch: Buch) => updateBuch(buch),
+    updateBuch: (_: unknown, auto: Buch) => updateBuch(auto),
 
     /**
      * Buch löschen

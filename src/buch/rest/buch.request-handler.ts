@@ -96,10 +96,10 @@ export class BuchRequestHandler {
             return;
         }
 
-        let buch: BuchData | undefined;
+        let auto: BuchData | undefined;
         try {
             // vgl. Kotlin: Aufruf einer suspend-Function
-            buch = await this.service.findById(id);
+            auto = await this.service.findById(id);
         } catch (err: unknown) {
             // Exception einer export async function bei der Ausfuehrung fangen:
             // https://strongloop.com/strongblog/comparing-node-js-promises-trycatch-zone-js-angular
@@ -108,15 +108,15 @@ export class BuchRequestHandler {
             return;
         }
 
-        if (buch === undefined) {
+        if (auto === undefined) {
             logger.debug('BuchRequestHandler.findById(): status=NOT_FOUND');
             res.sendStatus(HttpStatus.NOT_FOUND);
             return;
         }
-        logger.debug('BuchRequestHandler.findById(): buch=%o', buch);
+        logger.debug('BuchRequestHandler.findById(): auto=%o', auto);
 
         // ETags
-        const versionDb = buch.__v;
+        const versionDb = auto.__v;
         if (versionHeader === `"${versionDb}"`) {
             res.sendStatus(HttpStatus.NOT_MODIFIED);
             return;
@@ -125,8 +125,8 @@ export class BuchRequestHandler {
         res.header('ETag', `"${versionDb}"`);
 
         // HATEOAS mit Atom Links und HAL (= Hypertext Application Language)
-        const buchHAL = this.toHAL(buch, req, id);
-        res.json(buchHAL);
+        const autoHAL = this.toHAL(auto, req, id);
+        res.json(autoHAL);
     }
 
     /**
@@ -145,22 +145,22 @@ export class BuchRequestHandler {
      * @returns Leeres Promise-Objekt.
      */
     async find(req: Request, res: Response) {
-        // z.B. https://.../buecher?titel=a
+        // z.B. https://.../autos?titel=a
         // => req.query = { titel: 'a' }
         const { query } = req;
         logger.debug('BuchRequestHandler.find(): queryParams=%o', query);
 
-        let buecher: BuchData[];
+        let autos: BuchData[];
         try {
-            buecher = await this.service.find(query);
+            autos = await this.service.find(query);
         } catch (err: unknown) {
             logger.error('BuchRequestHandler.find(): error=%o', err);
             res.sendStatus(HttpStatus.INTERNAL_ERROR);
             return;
         }
 
-        logger.debug('BuchRequestHandler.find(): buecher=%o', buecher);
-        if (buecher.length === 0) {
+        logger.debug('BuchRequestHandler.find(): autos=%o', autos);
+        if (autos.length === 0) {
             // Alternative: https://www.npmjs.com/package/http-errors
             // Damit wird aber auch der Stacktrace zum Client
             // uebertragen, weil das resultierende Fehlerobjekt
@@ -171,19 +171,19 @@ export class BuchRequestHandler {
         }
 
         const baseUri = getBaseUri(req);
-        // asynchrone for-of Schleife statt synchrones buecher.forEach()
-        for await (const buch of buecher) {
+        // asynchrone for-of Schleife statt synchrones autos.forEach()
+        for await (const auto of autos) {
             // HATEOAS: Atom Links je Buch
-            const buchHAL: BuchHAL = buch;
+            const autoHAL: BuchHAL = auto;
             // eslint-disable-next-line no-underscore-dangle
-            buchHAL._links = { self: { href: `${baseUri}/${buch._id}` } };
+            autoHAL._links = { self: { href: `${baseUri}/${auto._id}` } };
 
-            delete buch._id;
-            delete buch.__v;
+            delete auto._id;
+            delete auto.__v;
         }
-        logger.debug('BuchRequestHandler.find(): buecher=%o', buecher);
+        logger.debug('BuchRequestHandler.find(): autos=%o', autos);
 
-        res.json(buecher);
+        res.json(autos);
     }
 
     /**
@@ -213,10 +213,10 @@ export class BuchRequestHandler {
             return;
         }
 
-        const buch = req.body as Buch;
-        logger.debug('BuchRequestHandler.create(): buch=%o', buch);
+        const auto = req.body as Buch;
+        logger.debug('BuchRequestHandler.create(): auto=%o', auto);
 
-        const result = await this.service.create(buch);
+        const result = await this.service.create(auto);
         if (result instanceof BuchServiceError) {
             this.handleCreateError(result, res);
             return;
@@ -265,11 +265,11 @@ export class BuchRequestHandler {
             return;
         }
 
-        const buch = req.body as Buch;
-        buch._id = id;
-        logger.debug('BuchRequestHandler.update(): buch=%o', buch);
+        const auto = req.body as Buch;
+        auto._id = id;
+        logger.debug('BuchRequestHandler.update(): auto=%o', auto);
 
-        const result = await this.service.update(buch, version);
+        const result = await this.service.update(auto, version);
         if (result instanceof BuchServiceError) {
             this.handleUpdateError(result, res);
             return;
@@ -308,14 +308,14 @@ export class BuchRequestHandler {
         res.sendStatus(HttpStatus.NO_CONTENT);
     }
 
-    private toHAL(buch: BuchData, req: Request, id: string) {
-        delete buch._id;
-        delete buch.__v;
-        const buchHAL: BuchHAL = buch;
+    private toHAL(auto: BuchData, req: Request, id: string) {
+        delete auto._id;
+        delete auto.__v;
+        const autoHAL: BuchHAL = auto;
 
         const baseUri = getBaseUri(req);
         // eslint-disable-next-line no-underscore-dangle
-        buchHAL._links = {
+        autoHAL._links = {
             self: { href: `${baseUri}/${id}` },
             list: { href: `${baseUri}` },
             add: { href: `${baseUri}` },
@@ -323,7 +323,7 @@ export class BuchRequestHandler {
             remove: { href: `${baseUri}/${id}` },
         };
 
-        return buchHAL;
+        return autoHAL;
     }
 
     private handleCreateError(err: CreateError, res: Response) {

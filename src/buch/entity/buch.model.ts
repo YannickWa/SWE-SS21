@@ -20,7 +20,7 @@
  * @packageDocumentation
  */
 
-import type { Buch, BuchArt, Verlag } from './buch';
+import type { Buch, BuchArt, Verlag } from './auto';
 import { Document, Schema, SchemaType, model } from 'mongoose';
 import { autoIndex, logColorConsole } from '../../shared';
 import type { Model } from 'mongoose';
@@ -82,7 +82,7 @@ export class BuchDocument extends Document<string> implements Buch {
  * Das Schema für Mongoose, das dem Schema bei einem relationalen DB-System
  * entspricht, welches durch `CREATE TABLE`, `CREATE INDEX` usw. entsteht.
  */
-export const buchSchema = new Schema<BuchDocument, Model<BuchDocument>>(
+export const autoSchema = new Schema<BuchDocument, Model<BuchDocument>>(
     {
         // MongoDB erstellt implizit einen Index fuer _id
         // mongoose-id-assigner hat geringe Download-Zahlen und
@@ -158,11 +158,11 @@ const optimistic = (schema: Schema<BuchDocument, Model<BuchDocument>>) => {
     });
 };
 
-buchSchema.plugin(optimistic);
+autoSchema.plugin(optimistic);
 
 /**
  * Ein Model ist ein übersetztes Schema und stellt die CRUD-Operationen für
  * die Dokumente bereit, d.h. das Pattern _Active Record_ wird realisiert.
  * Der Name des Models wird als Name für die Collection in MongoDB verwendet.
  */
-export const BuchModel = model<BuchDocument>('Buch', buchSchema); // eslint-disable-line @typescript-eslint/naming-convention
+export const BuchModel = model<BuchDocument>('Buch', autoSchema); // eslint-disable-line @typescript-eslint/naming-convention

@@ -30,7 +30,7 @@ import {
     findById,
     update,
     upload,
-} from './buch/rest';
+} from './auto/rest';
 import {
     devMode,
     enablePlayground,
@@ -44,12 +44,12 @@ import {
     validateContentType,
     validateUUID,
 } from './shared';
-import { index, neuesBuch, suche } from './buch/html';
+import { index, neuesBuch, suche } from './auto/html';
 import { isAdmin, isAdminMitarbeiter, login, validateJwt } from './auth';
 // Einlesen von application/json im Request-Rumpf
 // Fuer multimediale Daten (Videos, Bilder, Audios): raw-body
 import { json, urlencoded } from 'body-parser';
-import { resolvers, typeDefs } from './buch/graphql';
+import { resolvers, typeDefs } from './auto/graphql';
 import { ApolloServer } from 'apollo-server-express';
 import type { ApolloServerExpressConfig } from 'apollo-server-express';
 import bearerToken from 'express-bearer-token';
@@ -77,7 +77,7 @@ const apiPath = '/api';
  */
 export const PATHS = {
     // Template String
-    buecher: `${apiPath}/buecher`,
+    autos: `${apiPath}/autos`,
     verlage: `${apiPath}/verlage`,
     login: `${apiPath}/login`,
     graphql: '/graphql',
@@ -151,17 +151,17 @@ class App {
     }
 
     private routes() {
-        this.buecherRoutes();
+        this.autosRoutes();
         this.verlagRoutes();
         this.loginRoutes();
-        this.buchGraphqlRoutes();
+        this.autoGraphqlRoutes();
         this.htmlRoutes();
 
         this.app.get('*', notFound);
         this.app.use(internalError);
     }
 
-    private buecherRoutes() {
+    private autosRoutes() {
         // vgl: Spring WebFlux.fn
         // https://expressjs.com/en/api.html#router
         // Beispiele fuer "Middleware" bei Express:
@@ -207,7 +207,7 @@ class App {
             .put(`/:${idParam}/file`, validateJwt, isAdminMitarbeiter, upload)
             .get(`/:${idParam}/file`, download);
 
-        this.app.use(PATHS.buecher, router);
+        this.app.use(PATHS.autos, router);
     }
 
     private verlagRoutes() {
@@ -228,7 +228,7 @@ class App {
         this.app.use(PATHS.login, router);
     }
 
-    private buchGraphqlRoutes() {
+    private autoGraphqlRoutes() {
         // https://www.apollographql.com/docs/apollo-server/data/resolvers/#passing-resolvers-to-apollo-server
         const config: ApolloServerExpressConfig = {
             typeDefs,
@@ -245,7 +245,7 @@ class App {
         const router = Router(); // eslint-disable-line new-cap
         router.route('/').get(index);
         router.route('/suche').get(suche);
-        router.route('/neues-buch').get(neuesBuch);
+        router.route('/neues-auto').get(neuesBuch);
         this.app.use(PATHS.html, router);
 
         // Alternativen zu EJS: Handlebars.js, mustache.js, Pug, ...

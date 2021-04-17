@@ -23,6 +23,6 @@
  * @packageDocumentation
  */
 
-export * from './buch-file.service';
-export * from './buch.service';
+export * from './auto-file.service';
+export * from './auto.service';
 export * from './errors';

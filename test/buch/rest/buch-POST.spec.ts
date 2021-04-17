@@ -20,7 +20,7 @@ import { HttpStatus, nodeConfig } from '../../../src/shared';
 import { afterAll, beforeAll, describe, test } from '@jest/globals';
 import fetch, { Headers, Request } from 'node-fetch';
 import type { AddressInfo } from 'net';
-import type { Buch } from '../../../src/buch/entity';
+import type { Buch } from '../../../src/auto/entity';
 import { PATHS } from '../../../src/app';
 import RE2 from 're2';
 import type { Server } from 'http';
@@ -86,19 +86,19 @@ const neuesBuchTitelExistiert: Buch = {
 // T e s t s
 // -----------------------------------------------------------------------------
 let server: Server;
-const path = PATHS.buecher;
-let buecherUri: string;
+const path = PATHS.autos;
+let autosUri: string;
 let loginUri: string;
 
 // Test-Suite
-describe('POST /api/buecher', () => {
+describe('POST /api/autos', () => {
     // Testserver starten und dabei mit der DB verbinden
     beforeAll(async () => {
         server = await createTestserver();
 
         const address = server.address() as AddressInfo;
         const baseUri = `https://${nodeConfig.host}:${address.port}`;
-        buecherUri = `${baseUri}${path}`;
+        autosUri = `${baseUri}${path}`;
         loginUri = `${baseUri}${PATHS.login}`;
     });
 
@@ -117,7 +117,7 @@ describe('POST /api/buecher', () => {
             'Content-Type': 'application/json',
         });
         const body = JSON.stringify(neuesBuch);
-        const request = new Request(buecherUri, {
+        const request = new Request(autosUri, {
             method: HttpMethod.POST,
             headers,
             body,
@@ -158,7 +158,7 @@ describe('POST /api/buecher', () => {
             'Content-Type': 'application/json',
         });
         const body = JSON.stringify(neuesBuchInvalid);
-        const request = new Request(buecherUri, {
+        const request = new Request(autosUri, {
             method: HttpMethod.POST,
             headers,
             body,
@@ -193,7 +193,7 @@ describe('POST /api/buecher', () => {
             'Content-Type': 'application/json',
         });
         const body = JSON.stringify(neuesBuchTitelExistiert);
-        const request = new Request(buecherUri, {
+        const request = new Request(autosUri, {
             method: HttpMethod.POST,
             headers,
             body,
@@ -213,7 +213,7 @@ describe('POST /api/buecher', () => {
         // given
         const headers = new Headers({ 'Content-Type': 'application/json' });
         const body = JSON.stringify(neuesBuchTitelExistiert);
-        const request = new Request(buecherUri, {
+        const request = new Request(autosUri, {
             method: HttpMethod.POST,
             headers,
             body,
@@ -237,7 +237,7 @@ describe('POST /api/buecher', () => {
             'Content-Type': 'application/json',
         });
         const body = JSON.stringify(neuesBuch);
-        const request = new Request(buecherUri, {
+        const request = new Request(autosUri, {
             method: HttpMethod.POST,
             headers,
             body,

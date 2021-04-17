@@ -21,7 +21,7 @@
  * @packageDocumentation
  */
 
-import type { BuchData } from '../../buch/entity';
+import type { BuchData } from '../../auto/entity';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 

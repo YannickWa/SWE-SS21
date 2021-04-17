@@ -20,8 +20,8 @@ import { HttpStatus, logger, nodeConfig } from '../../../src/shared';
 import { afterAll, beforeAll, describe, test } from '@jest/globals';
 import fetch, { Headers, Request } from 'node-fetch';
 import type { AddressInfo } from 'net';
-import type { Buch } from '../../../src/buch/entity';
-import { MAX_RATING } from '../../../src/buch/entity';
+import type { Buch } from '../../../src/auto/entity';
+import { MAX_RATING } from '../../../src/auto/entity';
 import { PATHS } from '../../../src/app';
 import type { Server } from 'http';
 import chai from 'chai';
@@ -102,21 +102,21 @@ const veraltesBuch: object = {
 // -----------------------------------------------------------------------------
 // T e s t s
 // -----------------------------------------------------------------------------
-const path = PATHS.buecher;
+const path = PATHS.autos;
 let server: Server;
-let buecherUri: string;
+let autosUri: string;
 let loginUri: string;
 
 // Test-Suite
-describe('PUT /api/buecher/:id', () => {
+describe('PUT /api/autos/:id', () => {
     // Testserver starten und dabei mit der DB verbinden
     beforeAll(async () => {
         server = await createTestserver();
 
         const address = server.address() as AddressInfo;
         const baseUri = `https://${nodeConfig.host}:${address.port}`;
-        buecherUri = `${baseUri}${path}`;
-        logger.info(`buecherUri = ${buecherUri}`);
+        autosUri = `${baseUri}${path}`;
+        logger.info(`autosUri = ${autosUri}`);
         loginUri = `${baseUri}${PATHS.login}`;
     });
 
@@ -133,7 +133,7 @@ describe('PUT /api/buecher/:id', () => {
             'If-Match': '"0"',
         });
         const body = JSON.stringify(geaendertesBuch);
-        const request = new Request(`${buecherUri}/${idVorhanden}`, {
+        const request = new Request(`${autosUri}/${idVorhanden}`, {
             method: HttpMethod.PUT,
             headers,
             body,
@@ -158,7 +158,7 @@ describe('PUT /api/buecher/:id', () => {
             'If-Match': '"0"',
         });
         const body = JSON.stringify(geaendertesBuchIdNichtVorhanden);
-        const request = new Request(`${buecherUri}/${idNichtVorhanden}`, {
+        const request = new Request(`${autosUri}/${idNichtVorhanden}`, {
             method: HttpMethod.PUT,
             headers,
             body,
@@ -185,7 +185,7 @@ describe('PUT /api/buecher/:id', () => {
             'If-Match': '"0"',
         });
         const body = JSON.stringify(geaendertesBuchInvalid);
-        const request = new Request(`${buecherUri}/${idVorhanden}`, {
+        const request = new Request(`${autosUri}/${idVorhanden}`, {
             method: HttpMethod.PUT,
             headers,
             body,
@@ -219,7 +219,7 @@ describe('PUT /api/buecher/:id', () => {
             'Content-Type': 'application/json',
         });
         const body = JSON.stringify(geaendertesBuch);
-        const request = new Request(`${buecherUri}/${idVorhanden}`, {
+        const request = new Request(`${autosUri}/${idVorhanden}`, {
             method: HttpMethod.PUT,
             headers,
             body,
@@ -244,7 +244,7 @@ describe('PUT /api/buecher/:id', () => {
             'If-Match': '"-1"',
         });
         const body = JSON.stringify(veraltesBuch);
-        const request = new Request(`${buecherUri}/${idVorhanden}`, {
+        const request = new Request(`${autosUri}/${idVorhanden}`, {
             method: HttpMethod.PUT,
             headers,
             body,
@@ -267,7 +267,7 @@ describe('PUT /api/buecher/:id', () => {
             'If-Match': '"0"',
         });
         const body = JSON.stringify(geaendertesBuch);
-        const request = new Request(`${buecherUri}/${idVorhanden}`, {
+        const request = new Request(`${autosUri}/${idVorhanden}`, {
             method: HttpMethod.PUT,
             headers,
             body,
@@ -292,7 +292,7 @@ describe('PUT /api/buecher/:id', () => {
             'If-Match': '"0"',
         });
         const body = JSON.stringify(geaendertesBuch);
-        const request = new Request(`${buecherUri}/${idVorhanden}`, {
+        const request = new Request(`${autosUri}/${idVorhanden}`, {
             method: HttpMethod.PUT,
             headers,
             body,

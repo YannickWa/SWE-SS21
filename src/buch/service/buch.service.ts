@@ -77,15 +77,15 @@ export class BuchService {
         // Das Resultat ist null, falls nicht gefunden.
         // lean() liefert ein "Plain JavaScript Object" statt ein Mongoose Document,
         // so dass u.a. der virtuelle getter "id" auch nicht mehr vorhanden ist.
-        const buch = await BuchModel.findById(id).lean<BuchData | null>();
-        logger.debug('BuchService.findById(): buch=%o', buch);
+        const auto = await BuchModel.findById(id).lean<BuchData | null>();
+        logger.debug('BuchService.findById(): auto=%o', auto);
 
-        if (buch === null) {
+        if (auto === null) {
             return undefined;
         }
 
-        this.deleteTimestamps(buch);
-        return buch;
+        this.deleteTimestamps(auto);
+        return auto;
     }
 
     /**
@@ -97,26 +97,26 @@ export class BuchService {
     async find(query?: FilterQuery<BuchDocument> | undefined) {
         logger.debug('BuchService.find(): query=%o', query);
 
-        // alle Buecher asynchron suchen u. aufsteigend nach titel sortieren
+        // alle Autos asynchron suchen u. aufsteigend nach titel sortieren
         // https://docs.mongodb.org/manual/reference/object-id
         // entries(): { titel: 'a', rating: 5 } => [{ titel: 'x'}, {rating: 5}]
         if (query === undefined || Object.entries(query).length === 0) {
-            logger.debug('BuchService.find(): alle Buecher');
+            logger.debug('BuchService.find(): alle Autos');
             // lean() liefert ein "Plain JavaScript Object" statt ein Mongoose Document
-            const buecher = await BuchModel.find()
+            const autos = await BuchModel.find()
                 .sort('titel')
                 .lean<BuchData[]>();
-            for await (const buch of buecher) {
-                this.deleteTimestamps(buch);
+            for await (const auto of autos) {
+                this.deleteTimestamps(auto);
             }
-            return buecher;
+            return autos;
         }
 
         // { titel: 'a', rating: 5, javascript: true }
         // Rest Properties
         const { titel, javascript, typescript, ...dbQuery } = query;
 
-        // Buecher zur Query (= JSON-Objekt durch Express) asynchron suchen
+        // Autos zur Query (= JSON-Objekt durch Express) asynchron suchen
         // Titel in der Query: Teilstring des Titels,
         // d.h. "LIKE" als regulaerer Ausdruck
         // 'i': keine Unterscheidung zw. Gross- u. Kleinschreibung
@@ -154,44 +154,44 @@ export class BuchService {
         // BuchModel.findOne(query), falls das Suchkriterium eindeutig ist
         // bei findOne(query) wird null zurueckgeliefert, falls nichts gefunden
         // lean() liefert ein "Plain JavaScript Object" statt ein Mongoose Document
-        const buecher = await BuchModel.find(dbQuery).lean<BuchData[]>();
-        for await (const buch of buecher) {
-            this.deleteTimestamps(buch);
+        const autos = await BuchModel.find(dbQuery).lean<BuchData[]>();
+        for await (const auto of autos) {
+            this.deleteTimestamps(auto);
         }
 
-        return buecher;
+        return autos;
     }
 
     /**
      * Ein neues Buch soll angelegt werden.
-     * @param buch Das neu abzulegende Buch
+     * @param auto Das neu abzulegende Buch
      * @returns Die ID des neu angelegten Buches oder im Fehlerfall
      * - {@linkcode BuchInvalid} falls die Buchdaten gegen Constraints verstoßen
      * - {@linkcode IsbnExists} falls die ISBN-Nr bereits existiert
      * - {@linkcode TitelExists} falls der Titel bereits existiert
      */
     async create(
-        buch: Buch,
+        auto: Buch,
     ): Promise<BuchInvalid | IsbnExists | TitelExists | string> {
-        logger.debug('BuchService.create(): buch=%o', buch);
-        const validateResult = await this.validateCreate(buch);
+        logger.debug('BuchService.create(): auto=%o', auto);
+        const validateResult = await this.validateCreate(auto);
         if (validateResult instanceof BuchServiceError) {
             return validateResult;
         }
 
-        const buchModel = new BuchModel(buch);
-        const saved = await buchModel.save();
+        const autoModel = new BuchModel(auto);
+        const saved = await autoModel.save();
         const id = saved._id as string; // eslint-disable-line @typescript-eslint/non-nullable-type-assertion-style
         logger.debug('BuchService.create(): id=%s', id);
 
-        await this.sendmail(buch);
+        await this.sendmail(auto);
 
         return id;
     }
 
     /**
      * Ein vorhandenes Buch soll aktualisiert werden.
-     * @param buch Das zu aktualisierende Buch
+     * @param auto Das zu aktualisierende Buch
      * @param versionStr Die Versionsnummer für optimistische Synchronisation
      * @returns Die neue Versionsnummer gemäß optimistischer Synchronisation
      *  oder im Fehlerfall
@@ -202,7 +202,7 @@ export class BuchService {
      *  - {@linkcode VersionOutdated}, falls die Versionsnummer nicht aktuell ist
      */
     async update(
-        buch: Buch,
+        auto: Buch,
         versionStr: string,
     ): Promise<
         | BuchInvalid
@@ -212,26 +212,26 @@ export class BuchService {
         | VersionOutdated
         | number
     > {
-        logger.debug('BuchService.update(): buch=%o', buch);
+        logger.debug('BuchService.update(): auto=%o', auto);
         logger.debug('BuchService.update(): versionStr=%s', versionStr);
 
-        const validateResult = await this.validateUpdate(buch, versionStr);
+        const validateResult = await this.validateUpdate(auto, versionStr);
         if (validateResult instanceof BuchServiceError) {
             return validateResult;
         }
 
         // findByIdAndReplace ersetzt ein Document mit ggf. weniger Properties
-        const buchModel = new BuchModel(buch);
+        const autoModel = new BuchModel(auto);
         // Weitere Methoden zum Aktualisieren:
         //    Buch.findOneAndUpdate(update)
-        //    buch.updateOne(bedingung)
+        //    auto.updateOne(bedingung)
         const updated = await BuchModel.findByIdAndUpdate(
-            buch._id,
-            buchModel,
+            auto._id,
+            autoModel,
             BuchService.UPDATE_OPTIONS,
         ).lean<BuchData | null>();
         if (updated === null) {
-            return new BuchNotExists(buch._id);
+            return new BuchNotExists(auto._id);
         }
 
         const version = updated.__v as number; // eslint-disable-line @typescript-eslint/non-nullable-type-assertion-style
@@ -259,13 +259,13 @@ export class BuchService {
         //  Buch.findOneAndRemove(bedingung)
     }
 
-    private deleteTimestamps(buch: BuchData) {
-        delete buch.createdAt;
-        delete buch.updatedAt;
+    private deleteTimestamps(auto: BuchData) {
+        delete auto.createdAt;
+        delete auto.updatedAt;
     }
 
-    private async validateCreate(buch: Buch) {
-        const msg = validateBuch(buch);
+    private async validateCreate(auto: Buch) {
+        const msg = validateBuch(auto);
         if (msg !== undefined) {
             logger.debug(
                 'BuchService.validateCreate(): Validation Message: %o',
@@ -276,13 +276,13 @@ export class BuchService {
 
         // statt 2 sequentiellen DB-Zugriffen waere 1 DB-Zugriff mit OR besser
 
-        const { titel } = buch;
+        const { titel } = auto;
         // eslint-disable-next-line security/detect-non-literal-fs-filename
         if (await BuchModel.exists({ titel })) {
             return new TitelExists(titel);
         }
 
-        const { isbn } = buch;
+        const { isbn } = auto;
         // eslint-disable-next-line security/detect-non-literal-fs-filename
         if (await BuchModel.exists({ isbn })) {
             return new IsbnExists(isbn);
@@ -292,7 +292,7 @@ export class BuchService {
         return undefined;
     }
 
-    private async sendmail(buch: Buch) {
+    private async sendmail(auto: Buch) {
         if (cloud !== undefined || mailConfig.host === 'skip') {
             // In der Cloud kann man z.B. "@sendgrid/mail" statt
             // "nodemailer" mit lokalem Mailserver verwenden
@@ -301,8 +301,8 @@ export class BuchService {
 
         const from = '"Joe Doe" <Joe.Doe@acme.com>';
         const to = '"Foo Bar" <Foo.Bar@acme.com>';
-        const subject = `Neues Buch ${buch._id}`;
-        const body = `Das Buch mit dem Titel <strong>${buch.titel}</strong> ist angelegt`;
+        const subject = `Neues Buch ${auto._id}`;
+        const body = `Das Buch mit dem Titel <strong>${auto.titel}</strong> ist angelegt`;
 
         const data: SendMailOptions = { from, to, subject, html: body };
         logger.debug('sendMail(): data=%o', data);
@@ -318,7 +318,7 @@ export class BuchService {
         }
     }
 
-    private async validateUpdate(buch: Buch, versionStr: string) {
+    private async validateUpdate(auto: Buch, versionStr: string) {
         const result = this.validateVersion(versionStr);
         if (typeof result !== 'number') {
             return result;
@@ -326,24 +326,24 @@ export class BuchService {
 
         const version = result;
         logger.debug('BuchService.validateUpdate(): version=%d', version);
-        logger.debug('BuchService.validateUpdate(): buch=%o', buch);
+        logger.debug('BuchService.validateUpdate(): auto=%o', auto);
 
-        const validationMsg = validateBuch(buch);
+        const validationMsg = validateBuch(auto);
         if (validationMsg !== undefined) {
             return new BuchInvalid(validationMsg);
         }
 
-        const resultTitel = await this.checkTitelExists(buch);
-        if (resultTitel !== undefined && resultTitel.id !== buch._id) {
+        const resultTitel = await this.checkTitelExists(auto);
+        if (resultTitel !== undefined && resultTitel.id !== auto._id) {
             return resultTitel;
         }
 
-        if (buch._id === undefined) {
+        if (auto._id === undefined) {
             return new BuchNotExists(undefined);
         }
 
         const resultIdAndVersion = await this.checkIdAndVersion(
-            buch._id,
+            auto._id,
             version,
         );
         if (resultIdAndVersion !== undefined) {
@@ -377,8 +377,8 @@ export class BuchService {
         return version;
     }
 
-    private async checkTitelExists(buch: Buch) {
-        const { titel } = buch;
+    private async checkTitelExists(auto: Buch) {
+        const { titel } = auto;
 
         // Pattern "Active Record" (urspruengl. von Ruby-on-Rails)
         const result = await BuchModel.findOne({ titel }, { _id: true }).lean();
@@ -393,8 +393,8 @@ export class BuchService {
     }
 
     private async checkIdAndVersion(id: string, version: number) {
-        const buchDb: BuchData | null = await BuchModel.findById(id).lean();
-        if (buchDb === null) {
+        const autoDb: BuchData | null = await BuchModel.findById(id).lean();
+        if (autoDb === null) {
             const result = new BuchNotExists(id);
             logger.debug(
                 'BuchService.checkIdAndVersion(): BuchNotExists=%o',
@@ -404,7 +404,7 @@ export class BuchService {
         }
 
         // nullish coalescing
-        const versionDb = buchDb.__v ?? 0;
+        const versionDb = autoDb.__v ?? 0;
         if (version < versionDb) {
             const result = new VersionOutdated(id, version);
             logger.debug(
